@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ultimate Rankings</title>
+    <meta name="description" content="Compare options two at a time and build a ranking of your true preferences.">
+    <link rel="icon" href="data:,">
     <style>
         * {
             margin: 0;
@@ -917,8 +919,9 @@
                 loserId: loserId,
                 winnerName: winner.name,
                 loserName: loser.name,
-                winnerChange: Math.round(winnerChange),
-                loserChange: Math.round(loserChange),
+                // Exact (unrounded) so removing a comparison restores the exact rating
+                winnerChange: winnerChange,
+                loserChange: loserChange,
                 timestamp: Date.now()
             });
 
@@ -1215,10 +1218,10 @@
 
             if (listIds.length === 0) {
                 list.innerHTML = `
-                    <div class="no-options-message">
+                    <li class="no-options-message">
                         <h3>No lists yet!</h3>
                         <p>Create a new list above to get started.</p>
-                    </div>
+                    </li>
                 `;
                 return;
             }
@@ -1237,8 +1240,8 @@
                         </div>
                         <div class="save-actions">
                             ${isActive ? '<span style="color: #4caf50;">✓ Active</span>' : '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); loadList(\'' + id + '\')">Load</button>'}
-                            <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); openEditList('${id}')" style="padding: 8px 12px;">✎</button>
-                            <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteList('${id}')" style="padding: 8px 12px;">✕</button>
+                            <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); openEditList('${id}')" aria-label="Rename list" style="padding: 8px 12px;">✎</button>
+                            <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteList('${id}')" aria-label="Delete list" style="padding: 8px 12px;">✕</button>
                         </div>
                     </li>
                 `;
@@ -1253,10 +1256,10 @@
 
             if (currentList.options.length === 0) {
                 list.innerHTML = `
-                    <div class="no-options-message">
+                    <li class="no-options-message">
                         <h3>No options yet!</h3>
                         <p>${currentListId ? 'Add some options above to start ranking them.' : 'Select or create a list first in the Saves tab.'}</p>
-                    </div>
+                    </li>
                 `;
                 return;
             }
