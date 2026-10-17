@@ -13,6 +13,10 @@
             box-sizing: border-box;
         }
 
+        button, input, select, textarea {
+            font-family: inherit;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -671,6 +675,11 @@
             margin-top: 20px;
         }
 
+        .confirm-message {
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
         .history-entry-score {
             color: #888;
             font-size: 0.85em;
@@ -845,7 +854,53 @@
         </div>
     </div>
 
+    <!-- Confirm Modal (replaces the browser's confirm box) -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal" role="alertdialog" aria-modal="true" aria-describedby="confirm-message">
+            <p class="confirm-message" id="confirm-message"></p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                <button class="btn btn-danger" id="confirm-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ===== IN-APP CONFIRM =====
+        // Same meaning as confirm(): resolves true on OK/Enter, false on Cancel/Escape/backdrop.
+        function appConfirm(message) {
+            return new Promise(resolve => {
+                const overlay = document.getElementById('confirm-modal');
+                const okBtn = document.getElementById('confirm-ok');
+                const cancelBtn = document.getElementById('confirm-cancel');
+                document.getElementById('confirm-message').textContent = message;
+
+                let done = false;
+                function finish(result) {
+                    if (done) return;
+                    done = true;
+                    overlay.classList.remove('show');
+                    okBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                    overlay.onclick = null;
+                    document.removeEventListener('keydown', onKey, true);
+                    resolve(result);
+                }
+                function onKey(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); finish(true); }
+                    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); }
+                }
+
+                okBtn.onclick = () => finish(true);
+                cancelBtn.onclick = () => finish(false);
+                overlay.onclick = (e) => { if (e.target === overlay) finish(false); };
+                document.addEventListener('keydown', onKey, true);
+
+                overlay.classList.add('show');
+                okBtn.focus();
+            });
+        }
+
         // ===== DATA STRUCTURES =====
 
         const INITIAL_RATING = 1000;
@@ -968,13 +1023,13 @@
 
         // ===== RESET AND CLEANUP =====
 
-        function resetTraining() {
+        async function resetTraining() {
             if (!currentListId) {
                 showNotification('No list selected', 'error');
                 return;
             }
 
-            if (!confirm('Reset all training? This will set all options back to 0 points and clear all comparisons.')) return;
+            if (!await appConfirm('Reset all training? This will set all options back to 0 points and clear all comparisons.')) return;
 
             // Reset all options to initial rating
             for (const option of currentList.options) {
@@ -1080,11 +1135,11 @@
             showNotification(`"${name}" added!`, 'success');
         }
 
-        function deleteOption(id) {
+        async function deleteOption(id) {
             const option = currentList.options.find(o => o.id === id);
             if (!option) return;
 
-            if (!confirm(`Delete "${option.name}"? This will also remove all comparisons involving this option.`)) return;
+            if (!await appConfirm(`Delete "${option.name}"? This will also remove all comparisons involving this option.`)) return;
 
             currentList.options = currentList.options.filter(o => o.id !== id);
             currentList.comparisons = currentList.comparisons.filter(
@@ -1621,11 +1676,11 @@
             showNotification(`Loaded "${currentList.name}"`, 'success');
         }
 
-        function deleteList(listId) {
+        async function deleteList(listId) {
             if (!allLists[listId]) return;
 
             const listName = allLists[listId].name;
-            if (!confirm(`Delete list "${listName}"? All options and comparisons will be lost.`)) return;
+            if (!await appConfirm(`Delete list "${listName}"? All options and comparisons will be lost.`)) return;
 
             delete allLists[listId];
 

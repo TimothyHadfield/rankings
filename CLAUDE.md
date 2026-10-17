@@ -50,6 +50,8 @@ Push to `main`; GitHub Pages rebuilds. Check with `python ~/.claude/hooks/live-c
 
 ## Traps
 - `--do "click:text=Train"` matches "Reset Training" first (opens a confirm). Use the nth-child selectors.
-- Buttons don't inherit `font-family`, so in Playwright WebKit on Windows they render in a serif font.
-  On a real iPhone they use the system font. Not a bug to "fix" without Tim.
+- Form controls now get `font-family: inherit` (fixed 2026-10-17). Keep it as `font-family`, not the
+  `font: inherit` shorthand, which would change button sizes.
+- No browser `confirm/alert/prompt` (Tim's rule). Use `appConfirm(message)` (Promise<boolean>, the
+  `#confirm-modal` built from the existing `.modal` styles).
 - `.claude/` is gitignored (repo is public). No accounts, so no test account is needed.
