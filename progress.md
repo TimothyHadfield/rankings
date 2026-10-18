@@ -14,6 +14,7 @@ Nothing in progress. The app is published and working (https://timothyhadfield.g
 | Tests | None (single HTML file); verified with phone-view `--do` / `--eval` |
 | 2026-10-16 sweep | Removing a comparison now restores the exact rating (was drifting by fractions). See sweep report. |
 | 2026-10-17 fixes | Buttons/inputs use the page font in WebKit (were serif); the 3 browser confirm boxes (Reset Training, delete option, delete list) are now an in-page confirm (`appConfirm`), Enter/Escape/backdrop work. Verified phone-view WebKit. |
+| 2026-10-17 site icon | `icon.svg` (tab) + `apple-touch-icon.png` 180px (iPhone home screen): gold podium with a star on the navy background |
 
 ## Authorized next steps
 None.
